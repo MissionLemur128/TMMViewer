@@ -49,7 +49,7 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     float3 normal = normalize(input.Normal.xyz);
     float3 lightDirection = normalize(_sunLightDirection);
     float lightIntensity = max(dot(normal, lightDirection), 0.0);
-    float3 lightColor = _ambientLightColor + _sunLightColor * lightIntensity;
+    float3 lightColor = _ambientLightColor + _sunLightColor * lightIntensity * 0.5;
     
     // magic formula to highlight edges based on the x component of the view transformed normal
     float edgeHighlight = 1 - 0.5 * saturate(pow(abs(input.NormalView.x) * 0.15, 2));

@@ -13,6 +13,7 @@ namespace TMMViewer.Data.Services
         private Scene _scene;
         public TmmFile tmmFile = new();
         public List<TmmDataFile> tmmDataFiles = new();
+        public string? OpenedModelPath { get; private set; }
 
         private IMonoGameViewModel _monoGame;
 
@@ -30,6 +31,7 @@ namespace TMMViewer.Data.Services
             _scene.Meshes.Clear();
             tmmDataFiles.Clear();
             tmmFile = TmmFile.Decode(path);
+            OpenedModelPath = path;
 
             var yMax = float.MinValue;
             var yMin = float.MaxValue;
@@ -97,7 +99,7 @@ namespace TMMViewer.Data.Services
         {
             foreach (var mesh in tmmDataFiles)
             {
-                TmmAssimp.WriteToFile(tmmFile, mesh, path, format);
+                var success = TmmAssimp.WriteToFile(tmmFile, mesh, path, format);
             }
         }
     }

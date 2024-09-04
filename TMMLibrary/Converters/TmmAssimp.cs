@@ -23,7 +23,7 @@ namespace TMMLibrary.Converters
 
             for (int i = 0; i < model.Indices.Length; i += 3)
             {
-                var indices = new int[] { model.Indices[i], model.Indices[i + 1], model.Indices[i + 2] };
+                var indices = new int[] { model.Indices[i + 2], model.Indices[i + 1], model.Indices[i] };
                 mesh.Faces.Add(new Face(indices));
                 var normal = Vector3D.Cross(mesh.Vertices[indices[1]] - mesh.Vertices[indices[0]], mesh.Vertices[indices[2]] - mesh.Vertices[indices[0]]);
                 normal.Normalize();

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.IO;
 using TMMViewer.Data.Services;
 
 namespace TMMViewer.ViewModels
@@ -29,7 +30,21 @@ namespace TMMViewer.ViewModels
         [RelayCommand]
         public void ExportModel()
         {
-            // Load the data
+            var _modelPath = Path.GetFileNameWithoutExtension(_modelIO.OpenedModelPath);
+            var success = _dialogService.GetSaveFilePath(ref _modelPath, ".obj", "OBJ files (.obj)|*.obj");
+            if (success)
+            {
+                _modelIO.ExportModel(_modelPath, _modelExportMapping[Path.GetExtension(_modelPath)]);
+            }
         }
+
+        private Dictionary<string, string> _modelExportMapping = new()
+        {
+            { ".obj", "objnomtl" },
+            { ".fbx", "FBX" },
+            { ".dae", "Collada" },
+            { ".gltf", "glTF" },
+            { ".glb", "glTF Binary" },
+        };
     }
 }
