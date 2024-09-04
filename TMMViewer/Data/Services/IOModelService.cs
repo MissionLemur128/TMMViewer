@@ -31,6 +31,9 @@ namespace TMMViewer.Data.Services
             tmmDataFiles.Clear();
             tmmFile = TmmFile.Decode(path);
 
+            var yMax = float.MinValue;
+            var yMin = float.MaxValue;
+
             foreach (var model in tmmFile.ModelInfo)
             {
                 var data = TmmDataFile.Decode(model, path + ".data");
@@ -43,6 +46,12 @@ namespace TMMViewer.Data.Services
                         new Vector2(v.Uv.X, v.Uv.Y))
                     ).ToArray();
                 SmoothNormals(data, ref vertices);
+
+                foreach (var vertex in vertices)
+                {
+                    yMax = Math.Max(yMax, vertex.Position.Y);
+                    yMin = Math.Min(yMin, vertex.Position.Y);
+                }
      
                 var vertexBuffer = new VertexBuffer(graphicsDevice,
                     VertexPositionNormalTexture.VertexDeclaration,
@@ -57,6 +66,8 @@ namespace TMMViewer.Data.Services
                 var meshObject = new Mesh(material, vertexBuffer, indexBuffer);
                 _scene.Meshes.Add(meshObject);
             }
+
+            _scene.Camera.Target = new Vector3(0, (yMax + yMin) / 2, 0);
         }
 
         private static void SmoothNormals(TmmDataFile data, ref VertexPositionNormalTexture[] vertices)

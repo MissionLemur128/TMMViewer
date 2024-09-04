@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+	<Version>0.0.1</Version>
+  </PropertyGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+		<PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.1.303" />
+		<PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<MonoGameContentReference Include="**\*.mgcb" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\TMMLibrary\TMMLibrary.csproj" />
+	</ItemGroup>
+
+</Project>

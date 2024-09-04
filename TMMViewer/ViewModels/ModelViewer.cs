@@ -14,16 +14,25 @@ namespace TMMViewer.ViewModels
             _scene = scene;
         }
 
-        public override void LoadContent()
+        public override void OnMouseWheel(MouseStateArgs args, int delta)
         {
+            _scene.Camera.Update(args, delta);
+        }
+
+
+        public override void OnMouseMove(MouseStateArgs mouseState)
+        {
+            _scene.Camera.Update(mouseState, 0);
+        }
+
+        public override void OnMouseDown(MouseStateArgs mouseState)
+        {
+            _scene.Camera.Update(mouseState, 0);
         }
 
         public override void OnMouseUp(MouseStateArgs mouseState)
         {
-        }
-
-        public override void Update(GameTime gameTime)
-        {
+            _scene.Camera.Update(mouseState, 0);
         }
 
         public override void Draw(GameTime gameTime)
