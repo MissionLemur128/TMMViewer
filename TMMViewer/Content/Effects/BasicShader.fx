@@ -19,15 +19,16 @@ float3 _ambientLightColor;
 struct VertexShaderInput
 {
     float4 Position : POSITION0;
-    float3 Normal : NORMAL0;
+    float4 Normal : NORMAL0;
     float2 UV : TEXCOORD0;
 };
 
 struct VertexShaderOutput
 {
     float4 Position : SV_POSITION;
-    float3 Normal : NORMAL;
+    float4 Normal : NORMAL0;
     float2 UV : TEXCOORD0;
+    float3 NormalView : TEXCOORD1;
 };
 
 VertexShaderOutput MainVS(in VertexShaderInput input)
@@ -39,18 +40,20 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     output.Position = mul(viewPosition, _projection);
     output.Normal = input.Normal;
     output.UV = input.UV;
-
+    output.NormalView = mul(input.Normal, _view).xyz;
     return output;
 }
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-    float3 normal = normalize(input.Normal);
+    float3 normal = normalize(input.Normal.xyz);
     float3 lightDirection = normalize(_sunLightDirection);
     float lightIntensity = max(dot(normal, lightDirection), 0.0);
     float3 lightColor = _ambientLightColor + _sunLightColor * lightIntensity;
     
-    return float4(lightColor * _diffuseColor, 1.0);
+    // magic formula to highlight edges based on the x component of the view transformed normal
+    float edgeHighlight = 1 - 0.5 * saturate(pow(abs(input.NormalView.x) * 0.15, 2));
+    return float4(lightColor * _diffuseColor * edgeHighlight, 1.0);
 }
 
 technique BasicColorDrawing

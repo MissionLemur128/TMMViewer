@@ -20,8 +20,8 @@ namespace TMMViewer.Data.Render
         public void Render()
         {
             var graphicsDevice = _vertexBuffer.GraphicsDevice;
-            graphicsDevice.SetVertexBuffer(_vertexBuffer);
             graphicsDevice.Indices = _indices;
+            graphicsDevice.SetVertexBuffer(_vertexBuffer);
 
             Material.Parameters["_world"].SetValue(Matrix.Identity);
             Material.Parameters["_diffuseColor"].SetValue(Color.LightGray.ToVector3());
@@ -29,8 +29,8 @@ namespace TMMViewer.Data.Render
             foreach (var pass in Material.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 
-                    0, _vertexBuffer.VertexCount, _indices.IndexCount / 3);
+                graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList,
+                    0, 0, _indices.IndexCount / 3);
             }
         }
     }

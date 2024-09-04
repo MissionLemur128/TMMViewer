@@ -7,9 +7,10 @@ public struct TmmVertex
 {
     public Vector3 Origin;
     public Vector2 Uv;
-    public ushort Unknown0;
-    public ushort Unknown1;
-    public ushort Unknown2;
+    public Vector3 Normal;
+    //public ushort Unknown0;
+    //public ushort Unknown1;
+    //public ushort Unknown2;
 
     public static TmmVertex Decode(BinaryReader br)
     {
@@ -26,9 +27,15 @@ public struct TmmVertex
                 X = (float)br.ReadHalf(),
                 Y = (float)br.ReadHalf(),
             },
-            Unknown0 = br.ReadUInt16(),
-            Unknown1 = br.ReadUInt16(),
-            Unknown2 = br.ReadUInt16(),
+            Normal = new Vector3
+            {
+                X = (float)br.ReadHalf(),
+                Y = (float)br.ReadHalf(),
+                Z = (float)br.ReadHalf(),
+            },
+            //Unknown0 = br.ReadUInt16(),
+            //Unknown1 = br.ReadUInt16(),
+            //Unknown2 = br.ReadUInt16(),
         };
     }
 
@@ -39,9 +46,13 @@ public struct TmmVertex
         w.Write((Half)Origin.Z);
         w.Write((Half)Uv.X);
         w.Write((Half)Uv.Y);
-        w.Write(Unknown0);
-        w.Write(Unknown1);
-        w.Write(Unknown2);
+        w.Write((Half)Normal.X);
+        w.Write((Half)Normal.Y);
+        w.Write((Half)Normal.Z);
+
+        //w.Write(Unknown0);
+        //w.Write(Unknown1);
+        //w.Write(Unknown2);
     }
 
     public void WriteObj(TextWriter w)

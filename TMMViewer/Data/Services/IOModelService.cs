@@ -41,10 +41,9 @@ namespace TMMViewer.Data.Services
 
                 var vertices = data.Vertices.Select(
                     v => new VertexPositionNormalTexture(
-                        new Vector3(v.Origin.X, v.Origin.Y, v.Origin.Z),
-                        Vector3.Zero,
-                        new Vector2(v.Uv.X, v.Uv.Y))
-                    ).ToArray();
+                            new Vector3(-v.Origin.X, v.Origin.Y, v.Origin.Z),
+                            Vector3.Zero,
+                            new Vector2(v.Uv.X, v.Uv.Y))).ToArray();
                 SmoothNormals(data, ref vertices);
 
                 foreach (var vertex in vertices)
@@ -58,9 +57,11 @@ namespace TMMViewer.Data.Services
                     vertices.Length, BufferUsage.WriteOnly);
                 vertexBuffer.SetData(vertices);
 
+                var indices = data.Indices.ToArray();
+                Array.Reverse(indices);
                 var indexBuffer = new IndexBuffer(graphicsDevice,
-                    IndexElementSize.SixteenBits, data.Indices.Length, BufferUsage.WriteOnly);
-                indexBuffer.SetData(data.Indices);
+                    IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
+                indexBuffer.SetData(indices);
 
                 var material = _content.Load<Effect>("Effects/BasicShader");
                 var meshObject = new Mesh(material, vertexBuffer, indexBuffer);
@@ -79,7 +80,7 @@ namespace TMMViewer.Data.Services
                 var v1 = vertices[index[i + 1]];
                 var v2 = vertices[index[i + 2]];
 
-                var normal = Vector3.Cross(v1.Position - v0.Position, v2.Position - v0.Position);
+                var normal = -Vector3.Cross(v1.Position - v0.Position, v2.Position - v0.Position);
                 normal.Normalize();
 
                 v0.Normal += normal;

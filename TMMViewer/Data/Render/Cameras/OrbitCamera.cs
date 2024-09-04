@@ -7,7 +7,7 @@ namespace TMMViewer.Data.Render.Cameras
     public class OrbitCamera : Camera
     {
         public float Distance { get; set; } = 20;
-        public float Yaw { get; set; } = -30;
+        public float Yaw { get; set; } = -20;
         public float Pitch { get; set; } = 1;
 
         private Vector2 _lastCursorPosition;

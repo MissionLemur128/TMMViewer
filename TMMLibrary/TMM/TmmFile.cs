@@ -18,6 +18,7 @@ public class TmmFile
     {
         var header = ParseHeader(br);
 
+        br.BaseStream.Seek(header.DataOffset, SeekOrigin.Begin);
         var modelInfo = new ModelInfo[header.ModelCount];
         for (int i = 0; i < modelInfo.Length; ++i)
         {
@@ -60,7 +61,10 @@ public class TmmFile
         var modelInfo = new ModelInfo
         {
             Unknown1 = br.ReadUint16Array(4),
-            Unknown2 = br.ReadUint16Array(4+37),
+            Unknown2 = br.ReadUint16Array(35),
+            BoneCount = br.ReadUInt32(),
+            UnknownCount = br.ReadUInt32(),
+            AttachPointCount = br.ReadUInt32(),
             VertexCount = br.ReadUInt32(),
             IndexCount = br.ReadUInt32(),
             VertexOffset = br.ReadUInt32(),
@@ -86,7 +90,7 @@ public class ModelInfo
     public ushort[] Unknown2 { get; set; }
     public uint BoneCount { get; set; }
     public uint UnknownCount { get; set; }
-    public uint VFXCount { get; set; }
+    public uint AttachPointCount { get; set; }
     public uint VertexCount { get; set; }
     public uint IndexCount { get; set; }
     public uint VertexOffset { get; set; } // Normally 0x00
