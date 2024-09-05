@@ -32,7 +32,7 @@ struct VertexShaderOutput
     float4 Normal : NORMAL0;
     float2 UV : TEXCOORD0;
     float3 NormalView : TEXCOORD1;
-    float4 test : Color0;
+    float test : Color0;
 };
 
 VertexShaderOutput MainVS(in VertexShaderInput input)
@@ -45,7 +45,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     output.Normal = input.Normal;
     output.UV = input.UV;
     output.NormalView = mul(input.Normal, _view).xyz;
-    output.test = input.test;
+    output.test = (input.test.x + input.test.y * 100) * 0.01;
     return output;
 }
 
@@ -59,10 +59,10 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     // magic formula to highlight edges based on the x component of the view transformed normal
     float edgeHighlight = 1 - 0.5 * saturate(pow(abs(input.NormalView.x) * 0.15, 2));
     
-    float height = input.test.x + input.test.y * 255;
+    float height = input.test;
     
-    return float4(input.test.xy, 0, 1.0);
-    //return float4(lightColor * _diffuseColor * edgeHighlight, 1.0);
+    //return float4(height, height, height, 1.0);
+    return float4(lightColor * _diffuseColor * edgeHighlight, 1.0);
 }
 
 technique BasicColorDrawing

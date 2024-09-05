@@ -86,7 +86,7 @@ public class TmmDataFile
     public TmmVertex[] Vertices { get; set; }
     public ushort[] Indices { get; set; }
     public TmmBoneWeights[] BoneWeights { get; set; }
-    public byte[] Unknown2 { get; set; }
+    public byte[] Mask { get; set; }
 
     public static TmmDataFile Decode(ModelInfo modelInfo, string filePath)
     {
@@ -109,25 +109,25 @@ public class TmmDataFile
         br.BaseStream.Seek(modelInfo.IndexOffset, SeekOrigin.Begin);
         var indices = br.ReadUint16Array((int)modelInfo.IndexCount);
 
-        // Bone Weights
+        // Bone Weights: 2 = 1 byte for weight, 1 byte for bone index
         br.BaseStream.Seek(modelInfo.BoneWeightsOffset, SeekOrigin.Begin);
         var boneWeights = new TmmBoneWeights[modelInfo.VertexCount];
-        var maxBonePerVertexCount = (int)(modelInfo.BoneWeightsCount / modelInfo.VertexCount);
+        var maxBonePerVertexCount = (int)(modelInfo.BoneWeightsByteCount / modelInfo.VertexCount / 2);
         for (var i = 0; i < modelInfo.VertexCount; ++i)
         {
             boneWeights[i] = TmmBoneWeights.Decode(br, maxBonePerVertexCount);
         }
         
-        // Unknown2
-        br.BaseStream.Seek(modelInfo.UnknownData2Offset, SeekOrigin.Begin);
-        var unknown2 = br.ReadBytes((int)modelInfo.UnknownData2Count);
+        // Mask data
+        br.BaseStream.Seek(modelInfo.MaskDataOffset, SeekOrigin.Begin);
+        var mask = br.ReadBytes((int)modelInfo.MaskDataByteCount);
 
         return new TmmDataFile
         {
             Vertices = vertices,
             Indices = indices,
             BoneWeights = boneWeights,
-            Unknown2 = unknown2
+            Mask = mask
         };
     }
 
@@ -136,7 +136,7 @@ public class TmmDataFile
         Array.ForEach(Vertices, r => r.Encode(w));
         Array.ForEach(Indices, w.Write);
         Array.ForEach(BoneWeights, r => r.Encode(w));
-        Array.ForEach(Unknown2, w.Write);
+        Array.ForEach(Mask, w.Write);
     }
 
     public void WriteObj(TextWriter w)

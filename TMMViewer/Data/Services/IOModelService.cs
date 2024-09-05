@@ -65,8 +65,8 @@ namespace TMMViewer.Data.Services
                 {
                     var vertex = vertices[i];
                     vertex.Color = new Color(
-                    (byte)(data.Unknown2[i*2]),
-                    (byte)(data.Unknown2[i*2+1]),
+                    (byte)(data.Mask[i * 2]),
+                    (byte)(data.Mask[i * 2 + 1]),
                     (byte)(0));
                     vertices[i] = vertex;
                 }
@@ -143,28 +143,28 @@ namespace TMMViewer.Data.Services
             foreach (var mesh in tmmDataFiles)
             {
                 //ushort l = 0;
-                mesh.Vertices = mesh.Vertices.Select(v =>
-                {
-                    var normal = v.Origin;
-                    var max = Math.Max(Math.Max(normal.X, normal.Y), normal.Z);
-                    if (max != 0)
-                    {
-                        normal /= max;
-                    }
+                //mesh.Vertices = mesh.Vertices.Select(v =>
+                //{
+                //    var normal = v.Origin;
+                //    var max = Math.Max(Math.Max(normal.X, normal.Y), normal.Z);
+                //    if (max != 0)
+                //    {
+                //        normal /= max;
+                //    }
 
-                    return new TmmVertex
-                    {
-                        Origin = v.Origin,
-                        Uv = v.Uv,
-                        Tangent = TmmVector3.Zero,
-                        //Unknown0 = v.Unknown0,
-                        //Unknown1 = v.Unknown1,
-                        //Unknown2 = 0,
-                    };
-                    }
-                ).ToArray();
+                //    return new TmmVertex
+                //    {
+                //        Origin = v.Origin,
+                //        Uv = v.Uv,
+                //        Tangent = TmmVector3.Zero,
+                //        //Unknown0 = v.Unknown0,
+                //        //Unknown1 = v.Unknown1,
+                //        //Unknown2 = 0,
+                //    };
+                //    }
+                //).ToArray();
 
-                mesh.Unknown2 = mesh.Unknown2.Select(v => (byte)0).ToArray();
+                mesh.Mask = mesh.Mask.Select(v => byte.MaxValue).ToArray();
 
                 using MemoryStream stream = new();
                 using BinaryWriter writer = new(stream);
