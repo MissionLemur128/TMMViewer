@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using Assimp;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace TMMLibrary.TMM;
@@ -7,13 +8,14 @@ public struct TmmVertex
 {
     public Vector3 Origin;
     public Vector2 Uv;
-    public ushort Unknown0;
-    public ushort Unknown1;
-    public ushort Unknown2;
+    public Vector3 Tangent;
+    //public ushort Unknown0;
+    //public ushort Unknown1;
+    //public ushort Unknown2;
 
     public static TmmVertex Decode(BinaryReader br)
     {
-        return new TmmVertex
+        var r = new TmmVertex
         {
             Origin = new Vector3
             {
@@ -26,10 +28,15 @@ public struct TmmVertex
                 X = (float)br.ReadHalf(),
                 Y = (float)br.ReadHalf(),
             },
-            Unknown0 = br.ReadUInt16(),
-            Unknown1 = br.ReadUInt16(),
-            Unknown2 = br.ReadUInt16(),
+            Tangent = new Vector3
+            {
+                X = (float)br.ReadHalf(),
+                Y = (float)br.ReadHalf(),
+                Z = (float)br.ReadHalf(),
+            }
         };
+        //br.ReadBytes(3);
+        return r;
     }
 
     public void Encode(BinaryWriter w)
@@ -39,9 +46,9 @@ public struct TmmVertex
         w.Write((Half)Origin.Z);
         w.Write((Half)Uv.X);
         w.Write((Half)Uv.Y);
-        w.Write(Unknown0);
-        w.Write(Unknown1);
-        w.Write(Unknown2);
+        w.Write((Half)Tangent.X);
+        w.Write((Half)Tangent.Y);
+        w.Write((Half)Tangent.Z);
     }
 
     public void WriteObj(TextWriter w)
@@ -53,11 +60,32 @@ public struct TmmVertex
     }
 }
 
+public struct TmmBoneWeights
+{
+    public byte[] Weights { get; set; }
+    public byte[] BoneIndices { get; set; }
+
+    public static TmmBoneWeights Decode(BinaryReader br, int perVertexWeightCount)
+    {
+        return new TmmBoneWeights
+        {
+            Weights = br.ReadBytes(perVertexWeightCount),
+            BoneIndices = br.ReadBytes(perVertexWeightCount)
+        };
+    }
+
+    public void Encode(BinaryWriter w)
+    {
+        w.Write(Weights);
+        w.Write(BoneIndices);
+    }
+}
+
 public class TmmDataFile
 {
     public TmmVertex[] Vertices { get; set; }
     public ushort[] Indices { get; set; }
-    public byte[] Unknown1 { get; set; }
+    public TmmBoneWeights[] BoneWeights { get; set; }
     public byte[] Unknown2 { get; set; }
 
     public static TmmDataFile Decode(ModelInfo modelInfo, string filePath)
@@ -69,6 +97,7 @@ public class TmmDataFile
     
     public static TmmDataFile Decode(ModelInfo modelInfo, BinaryReader br)
     {
+        // Vertices
         var vertices = new TmmVertex[modelInfo.VertexCount];
         br.BaseStream.Seek(modelInfo.VertexOffset, SeekOrigin.Begin);
         for (var i = 0; i < modelInfo.VertexCount; ++i)
@@ -76,12 +105,20 @@ public class TmmDataFile
             vertices[i] = TmmVertex.Decode(br);
         }
 
+        // Indices
         br.BaseStream.Seek(modelInfo.IndexOffset, SeekOrigin.Begin);
         var indices = br.ReadUint16Array((int)modelInfo.IndexCount);
 
-        br.BaseStream.Seek(modelInfo.UnknownData1Offset, SeekOrigin.Begin);
-        var unknown1 = br.ReadBytes((int)modelInfo.UnknownData1Count);
+        // Bone Weights
+        br.BaseStream.Seek(modelInfo.BoneWeightsOffset, SeekOrigin.Begin);
+        var boneWeights = new TmmBoneWeights[modelInfo.VertexCount];
+        var maxBonePerVertexCount = (int)(modelInfo.BoneWeightsCount / modelInfo.VertexCount);
+        for (var i = 0; i < modelInfo.VertexCount; ++i)
+        {
+            boneWeights[i] = TmmBoneWeights.Decode(br, maxBonePerVertexCount);
+        }
         
+        // Unknown2
         br.BaseStream.Seek(modelInfo.UnknownData2Offset, SeekOrigin.Begin);
         var unknown2 = br.ReadBytes((int)modelInfo.UnknownData2Count);
 
@@ -89,25 +126,17 @@ public class TmmDataFile
         {
             Vertices = vertices,
             Indices = indices,
-            Unknown1 = unknown1,
+            BoneWeights = boneWeights,
             Unknown2 = unknown2
         };
     }
 
     public void Encode(BinaryWriter w)
     {
-        for (var i = 0; i < Vertices.Length; ++i)
-        {
-            Vertices[i].Encode(w);
-        }
-
-        for (var i = 0; i < Indices.Length; ++i)
-        {
-            w.Write(Indices[i]);
-        }
-        
-        w.Write(Unknown1);
-        w.Write(Unknown2);
+        Array.ForEach(Vertices, r => r.Encode(w));
+        Array.ForEach(Indices, w.Write);
+        Array.ForEach(BoneWeights, r => r.Encode(w));
+        Array.ForEach(Unknown2, w.Write);
     }
 
     public void WriteObj(TextWriter w)

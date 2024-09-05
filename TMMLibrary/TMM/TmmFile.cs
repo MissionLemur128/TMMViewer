@@ -71,11 +71,11 @@ public class TmmFile
             IndexOffset = br.ReadUInt32(),
             IndexOffset2 = br.ReadUInt32(),
             Unknown3 = br.ReadUInt32(),
-            UnknownData1Count = br.ReadUInt32(),
-            UnknownData1Offset = br.ReadUInt32(),
+            BoneWeightsOffset = br.ReadUInt32(),
+            BoneWeightsCount = br.ReadUInt32(),
             Unknown4 = br.ReadUint32Array(4),
+            UnknownData2Offset = br.ReadUInt32(),
             UnknownData2Count = br.ReadUInt32(),
-            UnknownData2Offset = br.ReadUInt32()
         };
         return modelInfo;
     }
@@ -97,11 +97,11 @@ public class ModelInfo
     public uint IndexOffset { get; set; }
     public uint IndexOffset2 { get; set; } // Same as indexoffset, not sure why exists
     public uint Unknown3 { get; set; } // probably an offset of some sort
-    public uint UnknownData1Count { get; set; }
-    public uint UnknownData1Offset { get; set; }
+    public uint BoneWeightsOffset { get; set; }
+    public uint BoneWeightsCount { get; set; }
     public uint[] Unknown4 { get; set; } // size of array is 4
-    public uint UnknownData2Count { get; set; }
     public uint UnknownData2Offset { get; set; }
+    public uint UnknownData2Count { get; set; }
 }
 
 public class TmmHeader

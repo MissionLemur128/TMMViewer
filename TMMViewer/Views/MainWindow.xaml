@@ -12,6 +12,7 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Import" Command="{Binding ImportModelCommand}"/>
             <MenuItem Header="Export" Command="{Binding ExportModelCommand}"/>
+            <MenuItem Header="Export Debug" Command="{Binding ExportModelDebugCommand}"/>
         </Menu>
 
         <views:MonoGameContentControl x:Name="Viewer3D"/>

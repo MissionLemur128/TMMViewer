@@ -38,6 +38,17 @@ namespace TMMViewer.ViewModels
             }
         }
 
+        [RelayCommand]
+        public void ExportModelDebug()
+        {
+            var _modelPath = Path.GetFileNameWithoutExtension(_modelIO.OpenedModelPath);
+            var success = _dialogService.GetSaveFilePath(ref _modelPath, ".tmm.data", "tmm.data files (.tmm.data)|*.tmm.data");
+            if (success)
+            {
+                _modelIO.ExportModelDebug(_modelPath);
+            }
+        }
+
         private Dictionary<string, string> _modelExportMapping = new()
         {
             { ".obj", "objnomtl" },
