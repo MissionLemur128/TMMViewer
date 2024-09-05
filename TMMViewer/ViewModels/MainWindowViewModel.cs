@@ -10,6 +10,10 @@ namespace TMMViewer.ViewModels
         private IDialogService _dialogService;
         private IModelIOService _modelIO;
 
+        public MainWindowViewModel()
+        {
+        }
+
         public MainWindowViewModel(IDialogService dialogService, IModelIOService modelIO)
         {
             _dialogService = dialogService;

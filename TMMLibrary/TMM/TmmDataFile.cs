@@ -8,8 +8,8 @@ public struct TmmVertex
 {
     public Vector3 Origin;
     public Vector2 Uv;
-    public Vector3 Tangent;
-    //public ushort Unknown0;
+    public Vector3 Normal;
+    public byte[] Unknown0;
     //public ushort Unknown1;
     //public ushort Unknown2;
 
@@ -28,12 +28,13 @@ public struct TmmVertex
                 X = (float)br.ReadHalf(),
                 Y = (float)br.ReadHalf(),
             },
-            Tangent = new Vector3
-            {
-                X = (float)br.ReadHalf(),
-                Y = (float)br.ReadHalf(),
-                Z = (float)br.ReadHalf(),
-            }
+            Unknown0 = br.ReadBytes(6),
+            //Tangent = new Vector3
+            //{
+            //    X = (float)br.ReadHalf(),
+            //    Y = (float)br.ReadHalf(),
+            //    Z = (float)br.ReadHalf(),
+            //}
         };
         //br.ReadBytes(3);
         return r;
@@ -46,9 +47,9 @@ public struct TmmVertex
         w.Write((Half)Origin.Z);
         w.Write((Half)Uv.X);
         w.Write((Half)Uv.Y);
-        w.Write((Half)Tangent.X);
-        w.Write((Half)Tangent.Y);
-        w.Write((Half)Tangent.Z);
+        w.Write((Half)Normal.X);
+        w.Write((Half)Normal.Y);
+        w.Write((Half)Normal.Z);
     }
 
     public void WriteObj(TextWriter w)

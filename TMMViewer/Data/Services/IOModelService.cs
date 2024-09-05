@@ -46,18 +46,20 @@ namespace TMMViewer.Data.Services
             {
                 var data = TmmDataFile.Decode(model, path + ".data");
                 tmmDataFiles.Add(data);
-
+                
                 var vertices = data.Vertices.Select(
                     v =>
                     {
-                        var tangent = v.Tangent;
-                        tangent.X = -tangent.X;
-                        var normal = Vector3.Cross(Vector3.Right, tangent);
+                        var halfValue = short.MaxValue / 2;
+                        var normal = new Vector3(
+                                halfValue - BitConverter.ToInt16(v.Unknown0, 0),
+                                halfValue - BitConverter.ToInt16(v.Unknown0, 2),
+                                BitConverter.ToInt16(v.Unknown0, 4) - halfValue);
                         normal.Normalize();
                         return new VertexPositionColorNormalTexture(
                             new Vector3(-v.Origin.X, v.Origin.Y, v.Origin.Z),
                             new Color(),
-                            tangent,
+                            normal,
                             new Vector2(v.Uv.X, v.Uv.Y));
                     }).ToArray();
 
@@ -71,23 +73,11 @@ namespace TMMViewer.Data.Services
                     vertices[i] = vertex;
                 }
 
-                //SmoothNormals(data, ref vertices);
-
                 foreach (var vertex in vertices)
                 {
                     yMax = Math.Max(yMax, vertex.Position.Y);
                     yMin = Math.Min(yMin, vertex.Position.Y);
                 }
-
-                //foreach (var vertex in data.Vertices)
-                //{
-                //    iMax[0] = Math.Max(iMax[0], vertex.Unknown0);
-                //    iMin[0] = Math.Min(iMin[0], vertex.Unknown0);
-                //    iMax[1] = Math.Max(iMax[1], vertex.Unknown1);
-                //    iMin[1] = Math.Min(iMin[1], vertex.Unknown1);
-                //    iMax[2] = Math.Max(iMax[2], vertex.Unknown2);
-                //    iMin[2] = Math.Min(iMin[2], vertex.Unknown2);
-                //}
 
                 var vertexBuffer = new VertexBuffer(graphicsDevice,
                     VertexPositionColorNormalTexture.VertexDeclaration,
@@ -108,28 +98,6 @@ namespace TMMViewer.Data.Services
             _scene.Camera.Target = new Vector3(0, (yMax + yMin) / 2, 0);
         }
 
-        private static void SmoothNormals(TmmDataFile data, ref VertexPositionNormalTexture[] vertices)
-        {
-            for (int i = 0; i < data.Indices.Length; i += 3)
-            {
-                var index = data.Indices;
-                var v0 = vertices[index[i]];
-                var v1 = vertices[index[i + 1]];
-                var v2 = vertices[index[i + 2]];
-
-                var normal = -Vector3.Cross(v1.Position - v0.Position, v2.Position - v0.Position);
-                normal.Normalize();
-
-                v0.Normal += normal;
-                v1.Normal += normal;
-                v2.Normal += normal;
-
-                vertices[index[i]] = v0;
-                vertices[index[i + 1]] = v1;
-                vertices[index[i + 2]] = v2;
-            }
-        }
-
         public void ExportModel(string path, string format)
         {
             foreach (var mesh in tmmDataFiles)
@@ -142,30 +110,6 @@ namespace TMMViewer.Data.Services
         {
             foreach (var mesh in tmmDataFiles)
             {
-                //ushort l = 0;
-                //mesh.Vertices = mesh.Vertices.Select(v =>
-                //{
-                //    var normal = v.Origin;
-                //    var max = Math.Max(Math.Max(normal.X, normal.Y), normal.Z);
-                //    if (max != 0)
-                //    {
-                //        normal /= max;
-                //    }
-
-                //    return new TmmVertex
-                //    {
-                //        Origin = v.Origin,
-                //        Uv = v.Uv,
-                //        Tangent = TmmVector3.Zero,
-                //        //Unknown0 = v.Unknown0,
-                //        //Unknown1 = v.Unknown1,
-                //        //Unknown2 = 0,
-                //    };
-                //    }
-                //).ToArray();
-
-                mesh.Mask = mesh.Mask.Select(v => byte.MaxValue).ToArray();
-
                 using MemoryStream stream = new();
                 using BinaryWriter writer = new(stream);
                 mesh.Encode(writer);

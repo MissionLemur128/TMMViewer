@@ -62,6 +62,7 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     float height = input.test;
     
     //return float4(height, height, height, 1.0);
+    //return float4(normal, 1.0);
     return float4(lightColor * _diffuseColor * edgeHighlight, 1.0);
 }
 
