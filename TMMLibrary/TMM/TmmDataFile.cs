@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace TMMLibrary.TMM;
 
-public struct TmmVertex
+public struct TmmVertex : IEncode
 {
     public Vector3 Origin;
     public Vector2 Uv;
@@ -53,12 +53,12 @@ public struct TmmVertex
     }
 }
 
-public class TmmDataFile
+public class TmmDataFile : IEncode
 {
-    public TmmVertex[] Vertices { get; set; }
-    public ushort[] Indices { get; set; }
-    public byte[] Unknown1 { get; set; }
-    public byte[] Unknown2 { get; set; }
+    public TmmVertex[] Vertices { get; set; } = [];
+    public ushort[] Indices { get; set; } = [];
+    public byte[] Unknown1 { get; set; } = [];
+    public byte[] Unknown2 { get; set; } = [];
 
     public static TmmDataFile Decode(ModelInfo modelInfo, string filePath)
     {
@@ -69,12 +69,8 @@ public class TmmDataFile
     
     public static TmmDataFile Decode(ModelInfo modelInfo, BinaryReader br)
     {
-        var vertices = new TmmVertex[modelInfo.VertexCount];
         br.BaseStream.Seek(modelInfo.VertexOffset, SeekOrigin.Begin);
-        for (var i = 0; i < modelInfo.VertexCount; ++i)
-        {
-            vertices[i] = TmmVertex.Decode(br);
-        }
+        var vertices = br.DecodeArray((int)modelInfo.VertexCount, TmmVertex.Decode);
 
         br.BaseStream.Seek(modelInfo.IndexOffset, SeekOrigin.Begin);
         var indices = br.ReadUint16Array((int)modelInfo.IndexCount);
@@ -96,10 +92,7 @@ public class TmmDataFile
 
     public void Encode(BinaryWriter w)
     {
-        for (var i = 0; i < Vertices.Length; ++i)
-        {
-            Vertices[i].Encode(w);
-        }
+        w.EncodeArray(Vertices);
 
         for (var i = 0; i < Indices.Length; ++i)
         {

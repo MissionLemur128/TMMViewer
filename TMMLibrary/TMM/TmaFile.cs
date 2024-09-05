@@ -2,9 +2,9 @@
 
 public class TmaFile
 {
-    internal TmaHeader Header;
-    internal TmaAnimHeader[] AnimationHeaders;
-    public TmaAnimData[] Datas;
+    public TmaHeader? FileHeader = null;
+    public TmaAnimHeader[] Headers = [];
+    public TmaAnimData[] Datas = [];
 
     public static TmaFile Decode(string filePath)
     {
@@ -16,40 +16,19 @@ public class TmaFile
     public static TmaFile Decode(BinaryReader br)
     {
         var header = TmaHeader.Decode(br);
-        var anims = new TmaAnimHeader[header.AnimCount2];
-        for (var i = 0; i < anims.Length; ++i)
-        {
-            anims[i] = TmaAnimHeader.Decode(br);
-        }
-        // Read number of animation values. Maybe read until end of file?
-        var datas = new TmaAnimData[header.AnimCount1];
-        for (var i = 0; i < datas.Length; ++i)
-        {
-            try
-            {
-                datas[i] = TmaAnimData.Decode(br);
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine($"error at animation # {i}");
-                throw;
-            }
-        }
+        var anims = br.DecodeArray((int)header.AnimCount2, TmaAnimHeader.Decode);
+        var datas = br.DecodeArray((int)header.AnimCount1, TmaAnimData.Decode);
         // Should be 8 more null bytes and then EOF
         var expectZero = br.ReadUInt64();
         if (expectZero != 0)
         {
-            throw new IOException("TmaFile - expected last 8 bytes to be 0");
+            throw new DecodeException(typeof(TmaFile), "expected last 8 bytes to be 0");
         }
-        if (br.BaseStream.Position != br.BaseStream.Length)
-        {
-            throw new IOException("TmaFile - expected to be at end of file");
-        }
-        
+        DecodeException.ExpectEof(typeof(TmaFile), br.BaseStream);
         return new TmaFile
         {
-            Header = header,
-            AnimationHeaders = anims,
+            FileHeader = header,
+            Headers = anims,
             Datas = datas,
         };
     }
@@ -188,6 +167,7 @@ public struct TmaAnimData
 
     private void DecodeImpl(BinaryReader br)
     {
+        var myType = typeof(TmaAnimData);
         var pos = br.BaseStream.Position;
         Name = br.ReadTmString();
         B0 = br.ReadByte();
@@ -196,7 +176,7 @@ public struct TmaAnimData
         B3 = br.ReadByte();
         if (B0 != 1 || B3 != 0)
         {
-            throw new IOException($"TmaAnimData at {pos:X} - unexpected values, refusing to decode more");
+            throw new DecodeException(myType, pos, "unexpected values, refusing to decode more");
         }
 
         Unknown1 = br.ReadUInt32();
@@ -213,7 +193,7 @@ public struct TmaAnimData
                 break;
             }
             default:
-                throw new IOException($"TmaAnimData at {pos:X} - B1 is unknown value {B1}, refusing to continue");
+                throw new DecodeException(myType, pos, $"B1 is unknown value {B1}, refusing to continue");
         }
 
         switch (B2)
@@ -226,7 +206,7 @@ public struct TmaAnimData
                 Floats2 = br.ReadFloat32Array(len2 / 4);
                 break;
             default:
-                throw new IOException($"TmaAnimData at {pos:X} - B2 is unknown value {B2}, refusing to continue");
+                throw new DecodeException(myType, pos, $"B2 is unknown value {B2}, refusing to continue");
         }
         
         // And the ending 0x10 bytes worth of floats
