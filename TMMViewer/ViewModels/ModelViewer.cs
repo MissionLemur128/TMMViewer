@@ -38,7 +38,7 @@ namespace TMMViewer.ViewModels
 
         public override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             _scene.Render(GraphicsDevice);
         }
     }
