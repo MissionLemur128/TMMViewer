@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 
 namespace TMMLibrary.TMM;
 
-public struct TmmVertex
+public struct TmmVertex : IEncode
 {
     public Vector3 Origin;
     public Vector2 Uv;
-    public Vector3 Normal;
+    //public Vector3 Normal;
     public byte[] Unknown0;
     //public ushort Unknown1;
     //public ushort Unknown2;
@@ -47,9 +47,9 @@ public struct TmmVertex
         w.Write((Half)Origin.Z);
         w.Write((Half)Uv.X);
         w.Write((Half)Uv.Y);
-        w.Write((Half)Normal.X);
-        w.Write((Half)Normal.Y);
-        w.Write((Half)Normal.Z);
+        w.Write(Unknown0);
+        //w.Write((Half)Normal.Y);
+        //w.Write((Half)Normal.Z);
     }
 
     public void WriteObj(TextWriter w)
@@ -84,10 +84,10 @@ public struct TmmBoneWeights
 
 public class TmmDataFile
 {
-    public TmmVertex[] Vertices { get; set; }
-    public ushort[] Indices { get; set; }
-    public TmmBoneWeights[] BoneWeights { get; set; }
-    public byte[] Mask { get; set; }
+    public TmmVertex[] Vertices { get; set; } = [];
+    public ushort[] Indices { get; set; } = [];
+    public TmmBoneWeights[] BoneWeights { get; set; } = [];
+    public byte[] Mask { get; set; } = [];
 
     public static TmmDataFile Decode(ModelInfo modelInfo, string filePath)
     {
@@ -99,12 +99,8 @@ public class TmmDataFile
     public static TmmDataFile Decode(ModelInfo modelInfo, BinaryReader br)
     {
         // Vertices
-        var vertices = new TmmVertex[modelInfo.VertexCount];
         br.BaseStream.Seek(modelInfo.VertexOffset, SeekOrigin.Begin);
-        for (var i = 0; i < modelInfo.VertexCount; ++i)
-        {
-            vertices[i] = TmmVertex.Decode(br);
-        }
+        var vertices = br.DecodeArray((int)modelInfo.VertexCount, TmmVertex.Decode);
 
         // Indices
         br.BaseStream.Seek(modelInfo.IndexOffset, SeekOrigin.Begin);

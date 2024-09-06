@@ -37,10 +37,7 @@ namespace TMMViewer.Data.Services
             var yMax = float.MinValue;
             var yMin = float.MaxValue;
 
-            ushort[] iMax = { ushort.MinValue, ushort.MinValue, ushort.MinValue };
-            ushort[] iMin = { ushort.MaxValue, ushort.MaxValue, ushort.MaxValue };
-
-            foreach (var model in tmmFile.ModelInfo)
+            foreach (var model in tmmFile.ModelInfos)
             {
                 var data = TmmDataFile.Decode(model, path + ".data");
                 tmmDataFiles.Add(data);

@@ -2,26 +2,58 @@
 
 namespace TMMLibrary.TMM;
 
+
+public interface IEncode
+{
+    void Encode(BinaryWriter bw);
+}
+
 public static class IoExtensions
 {
     public static ushort[] ReadUint16Array(this BinaryReader br,  int v)
     {
         var array = new ushort[v];
-        for (int i = 0; i < v; i++)
+        for (var i = 0; i < v; i++)
         {
             array[i] = br.ReadUInt16();
         }
         return array;
     }
 
+    public static void Write(this BinaryWriter bw, ushort[] array)
+    {
+        foreach (var v in array)
+        {
+            bw.Write(v);
+        }
+    }
+
     public static uint[] ReadUint32Array(this BinaryReader br, int v)
     {
         var array = new uint[v];
-        for (int i = 0; i < v; i++)
+        for (var i = 0; i < v; i++)
         {
             array[i] = br.ReadUInt32();
         }
         return array;
+    }
+
+    public static int[] ReadInt32Array(this BinaryReader br, int count)
+    {
+        var array = new int[count];
+        for (var i = 0; i < count; i++)
+        {
+            array[i] = br.ReadInt32();
+        }
+        return array;
+    }
+
+    public static void Write(this BinaryWriter bw, uint[] array)
+    {
+        foreach (var v in array)
+        {
+            bw.Write(v);
+        }
     }
 
     public static float[] ReadFloat32Array(this BinaryReader br, int count)
@@ -32,6 +64,14 @@ public static class IoExtensions
             array[i] = br.ReadSingle();
         }
         return array;
+    }
+
+    public static void Write(this BinaryWriter bw, float[] array)
+    {
+        foreach (var v in array)
+        {
+            bw.Write(v);
+        }
     }
 
     /// <summary>
@@ -55,6 +95,48 @@ public static class IoExtensions
     public static string ReadTmString(this BinaryReader br)
     {
         var length = br.ReadInt32();
-        return br.ReadUtf16String(length);
+        // sanity check, remove once we have the decoding more accurate
+        if (length > 100)
+        {
+            throw new IOException("invalid length trying to read TmString");
+        }
+        return length == 0 ? "" : br.ReadUtf16String(length);
+    }
+
+    public static void WriteTmString(this BinaryWriter bw, string s)
+    {
+        if (s.Length == 0)
+        {
+            bw.Write(0);
+            return;
+        }
+        var bytes = Encoding.Unicode.GetBytes(s);
+        bw.Write((uint)bytes.Length / 2);
+        bw.Write(bytes);
+    }
+
+    public static T[] DecodeArray<T>(this BinaryReader br, int length, Func<BinaryReader, T> fn)
+    {
+        var array = new T[length];
+        for (var i = 0; i < length; i++)
+        {
+            array[i] = fn(br);
+        }
+        return array;
+    }
+
+    public static void EncodeArray<T>(this BinaryWriter bw, IEnumerable<T> array) where T : IEncode
+    {
+        foreach (var item in array)
+        {
+            item.Encode(bw);
+        }
+    }
+
+    public static void PrintPosition(this BinaryReader br)
+    {
+        Console.WriteLine($"BinaryReader at position 0x{br.BaseStream.Position:X}");
     }
 }
+
+
