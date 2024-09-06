@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using TMMViewer.Data.Render;
 using TMMViewer.ViewModels.MonoGameControls;
+using TMMViewer.Data;
 
 namespace TMMViewer.ViewModels
 {

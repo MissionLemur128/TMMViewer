@@ -9,6 +9,7 @@ namespace TMMViewer.Data.Render
         public Camera Camera { get; set; } = new OrbitCamera();
         public DirectionalLight DirectionalLight { get; set; } = new();
         public List<Mesh> Meshes { get; set; } = new();
+        public RenderMode RenderMode { get; set; } = RenderMode.Solid;
 
         public void Render(GraphicsDevice device)
         {
@@ -20,7 +21,7 @@ namespace TMMViewer.Data.Render
                 Camera.ApplyToMaterial(mesh.Material);
                 Environment.ApplyToMaterial(mesh.Material);
                 DirectionalLight.ApplyToMaterial(mesh.Material);
-                mesh.Render();
+                mesh.Render(RenderMode);
             }
         }
     }

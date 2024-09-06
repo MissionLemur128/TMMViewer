@@ -13,9 +13,9 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Effects/BasicShader.fx
+#begin Effects/DefaultShader.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:Effects/BasicShader.fx
+/build:Effects/DefaultShader.fx
 

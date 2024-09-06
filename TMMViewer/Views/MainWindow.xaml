@@ -12,7 +12,10 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Import" Command="{Binding ImportModelCommand}"/>
             <MenuItem Header="Export" Command="{Binding ExportModelCommand}"/>
+            <!--
             <MenuItem Header="Export Debug" Command="{Binding ExportModelDebugCommand}"/>
+            -->
+            <ComboBox ItemsSource="{Binding RenderModes}" SelectedItem="{Binding SelectedRenderMode}" Width="200"/>
         </Menu>
         
         <views:MonoGameContentControl x:Name="Viewer3D"/>
