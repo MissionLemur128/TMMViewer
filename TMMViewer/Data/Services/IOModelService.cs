@@ -1,76 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using TMMLibrary.Converters;
 using TMMLibrary.TMM;
 using TMMViewer.Data.Render;
 using TMMViewer.ViewModels.MonoGameControls;
-using TmmVector3 = System.Numerics.Vector3;
-using TmmVector2 = System.Numerics.Vector2;
-using GLVector4 = Microsoft.Xna.Framework.Vector4;
 using GLVector3 = Microsoft.Xna.Framework.Vector3;
-using GLVector2 = Microsoft.Xna.Framework.Vector2;
-using GLColor = Microsoft.Xna.Framework.Color;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 
 namespace TMMViewer.Data.Services
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct TMMVertexType : IVertexType
-    {
-        [DataMember]
-        public GLVector3 Position;
-
-        [DataMember]
-        public GLVector3 Normal;
-
-        [DataMember]
-        public GLVector2 TextureCoordinate;
-
-        [DataMember]
-        public GLVector4 BoneWeights;
-
-        [DataMember]
-        public GLColor BoneIndices;
-
-        [DataMember]
-        public GLColor Mask;
-
-        public static readonly VertexDeclaration VertexDeclaration;
-
-        VertexDeclaration IVertexType.VertexDeclaration => VertexDeclaration;
-
-        public TMMVertexType(
-            GLVector3 position, 
-            GLVector3 normal, 
-            GLVector2 textureCoordinate, 
-            GLVector4 boneWeights,
-            byte[] boneIndices,
-            GLColor mask)
-        {
-            Position = position;
-            Mask = mask;
-            Normal = normal;
-            TextureCoordinate = textureCoordinate;
-            BoneWeights = boneWeights;
-            BoneIndices = new GLColor(boneIndices[0], boneIndices[1], boneIndices[2], boneIndices[3]);
-        }
-
-        static TMMVertexType()
-        {
-            VertexDeclaration = new VertexDeclaration(
-                new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
-                new VertexElement(12, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),
-                new VertexElement(24, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0),
-                new VertexElement(32, VertexElementFormat.Vector4, VertexElementUsage.BlendWeight, 0),
-                new VertexElement(48, VertexElementFormat.Byte4, VertexElementUsage.BlendIndices, 0),
-                new VertexElement(52, VertexElementFormat.Color, VertexElementUsage.Color, 0)
-            );
-        }
-    }
-
     public class IOModelService : IModelIOService
     {
         private Scene _scene;
