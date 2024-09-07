@@ -2,6 +2,6 @@
 {
     public enum RenderMode
     {
-        Solid, Normals, BoneWeights, Mask
+        Solid, Bones, Normals, BoneWeights, Mask
     }
 }

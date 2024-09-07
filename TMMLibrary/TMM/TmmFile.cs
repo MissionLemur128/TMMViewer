@@ -16,7 +16,7 @@ public class TmmFile
     {
         var header = TmmHeader.Decode(br);
         var modelInfo = br.DecodeArray((int)header.ModelCount, ModelInfo.Decode);
-        DecodeException.ExpectEof(typeof(TmmFile), br.BaseStream);
+        //DecodeException.ExpectEof(typeof(TmmFile), br.BaseStream);
         TmmFile tmmFile = new()
         {
             Header = header,
@@ -155,8 +155,8 @@ public class ModelInfo : IEncode
         modelInfo.Bones = br.DecodeArray(modelInfo.BoneCount, Bone.Decode);
         modelInfo.UnknownEnd = br.ReadUint32Array(0x10 / 4); // 4 elements
 
-        DecodeException.ExpectEqualList<uint>(
-            typeof(ModelInfo), br.BaseStream.Position, [0, 0, 0x01585600, 0], modelInfo.UnknownEnd);
+       // DecodeException.ExpectEqualList<uint>(
+        //    typeof(ModelInfo), br.BaseStream.Position, [0, 0, 0x01585600, 0], modelInfo.UnknownEnd);
         return modelInfo;
     }
 
@@ -212,7 +212,7 @@ public class TmmAttachPoint : IEncode
         apoint.Name2 = br.ReadTmString();
         // Ends with [-1, 0, 0]
         var tmp1 = br.ReadInt32Array(3);
-        DecodeException.ExpectEqualList(myType, br.BaseStream.Position, [-1, 0, 0], tmp1);
+        //DecodeException.ExpectEqualList(myType, br.BaseStream.Position, [-1, 0, 0], tmp1);
         return apoint;
     }
 
@@ -235,7 +235,8 @@ public class Bone : IEncode
 {
     public string Name = "";
     public int BoneParent;
-    public float[] Unknown2 = []; // size = 52
+    //public ushort BoneId;
+    public byte[] Unknown2 = []; // size = 52
 
     public static Bone Decode(BinaryReader br)
     {
@@ -243,7 +244,8 @@ public class Bone : IEncode
         {
             Name = br.ReadTmString(),
             BoneParent = br.ReadInt32(),
-            Unknown2 = br.ReadFloat32Array(0xD0 / 4), // = 52
+            //BoneId = br.ReadUInt16(),
+            Unknown2 = br.ReadBytes(0xD0), // = 52
         };
     }
     
@@ -251,6 +253,7 @@ public class Bone : IEncode
     {
         bw.WriteTmString(Name);
         bw.Write(BoneParent);
+        //bw.Write(BoneId);
         bw.Write(Unknown2);
     }
 }

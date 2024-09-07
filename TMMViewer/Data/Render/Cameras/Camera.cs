@@ -27,7 +27,6 @@ namespace TMMViewer.Data.Render.Cameras
 
         public void ApplyToMaterial(Effect effect)
         {
-            effect.GraphicsDevice.Clear(BackgroundColor);
             effect.Parameters["_view"].SetValue(View);
             effect.Parameters["_projection"].SetValue(Projection);
         }

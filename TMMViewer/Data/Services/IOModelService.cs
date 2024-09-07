@@ -6,6 +6,7 @@ using TMMViewer.Data.Render;
 using TMMViewer.ViewModels.MonoGameControls;
 using GLVector3 = Microsoft.Xna.Framework.Vector3;
 using System.IO;
+using SharpDX.MediaFoundation;
 
 namespace TMMViewer.Data.Services
 {
@@ -58,11 +59,17 @@ namespace TMMViewer.Data.Services
                             halfValue - BitConverter.ToInt16(v.Unknown0, 2),
                             BitConverter.ToInt16(v.Unknown0, 4) - halfValue);
                     normal.Normalize();
+                    var boneWeights2 = Vector4.Zero;
+                    if (boneWeights.Weights.Length >= 4)
+                    {
+                        boneWeights2 = new Vector4(boneWeights.Weights[0], boneWeights.Weights[1], boneWeights.Weights[2], boneWeights.Weights[3]) / 100f;
+                    }
+
                     vertices[i] = new TMMVertexType(
                         new Vector3(-v.Origin.X, v.Origin.Y, v.Origin.Z),
                         normal,
                         new Vector2(v.Uv.X, v.Uv.Y),
-                        new Vector4(boneWeights.Weights[0], boneWeights.Weights[1], boneWeights.Weights[2], boneWeights.Weights[3]),
+                        boneWeights2,
                         boneWeights.BoneIndices, 
                         mask );
                 }
@@ -87,6 +94,58 @@ namespace TMMViewer.Data.Services
                 var material = _content.Load<Effect>("Effects/DefaultShader");
                 var meshObject = new Mesh(material, vertexBuffer, indexBuffer);
                 _scene.Meshes.Add(meshObject);
+            //}
+
+            //foreach (var model in tmmFile.ModelInfos)
+            //{
+                Render.Bone.InitGlobal(_monoGame.GraphicsDevice, _content);
+                var skeleton = new Skeleton();
+                var id = 0;
+                foreach (var bone in model.Bones)
+                {
+                    if (skeleton.Bones.ContainsKey((ushort)id))
+                        continue;
+
+                    var bone3D = new Render.Bone();
+
+
+
+                    //var v = new Vector4[4];
+                    //var offset = 64;
+                    //for (int i = 0; i < 4; i++)
+                    //{
+                    //    v[i] = new Vector4(
+                    //        BitConverter.ToSingle(bone.Unknown2, offset + i * 16),
+                    //        BitConverter.ToSingle(bone.Unknown2, offset + i * 16 + 4),
+                    //        BitConverter.ToSingle(bone.Unknown2, offset + i * 16 + 8),
+                    //        BitConverter.ToSingle(bone.Unknown2, offset + i * 16 + 12));
+                    //}
+
+                    var v = new Vector3[3];
+                    var offset = 0;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        v[i] = new Vector3(
+                            BitConverter.ToSingle(bone.Unknown2, offset + i * 12),
+                            BitConverter.ToSingle(bone.Unknown2, offset + i * 12 + 4),
+                            BitConverter.ToSingle(bone.Unknown2, offset + i * 12 + 8));
+                    }
+
+
+                    //bone3D.Transform = new Matrix(v[0], v[1], v[2], v[3]);
+                    //bone3D.Transform = Matrix.CreateWorld(v[0], v[1], v[2]);
+                    bone3D.data = bone.Unknown2;
+                    bone3D.parent = bone.BoneParent;
+                    bone3D.index = id;
+
+                        //Matrix.CreateScale(bone.Scale) *
+                        //Matrix.CreateFromQuaternion(bone.Rotation) *
+                        //Matrix.CreateTranslation(bone.Position);
+
+                    skeleton.Bones.Add((ushort)id, bone3D);
+                    id++;
+                }
+                _scene.Skeleton = skeleton;
             }
 
             _scene.Camera.Target = new Vector3(0, (yMax + yMin) / 2, 0);
