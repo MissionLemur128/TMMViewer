@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.IO;
-using System.Windows.Interop;
+using TMMLibrary.Converters;
 using TMMViewer.Data.Render;
 using TMMViewer.Data.Services;
 using RenderMode = TMMViewer.Data.RenderMode;
@@ -22,10 +22,6 @@ namespace TMMViewer.ViewModels
             set => _scene.RenderMode = value;
         }
 
-        public MainWindowViewModel()
-        {
-        }
-
         public MainWindowViewModel(IDialogService dialogService, IModelIOService modelIO, Scene scene)
         {
             _dialogService = dialogService;
@@ -37,7 +33,10 @@ namespace TMMViewer.ViewModels
         public void ImportModel()
         {
             var _modelPath = string.Empty;
-            var success = _dialogService.GetOpenFilePath(ref _modelPath, ".tmm", "TMM files (.tmm)|*.tmm");
+            var extensions = SupportedFiles.Import.Select(x => x.Extension).Aggregate((a, b) => $"{a}|{b}");
+            var filters = SupportedFiles.Import.Select(x => x.Filter).Aggregate((a, b) => $"{a}|{b}");
+
+            var success = _dialogService.GetOpenFilePath(ref _modelPath, extensions, filters);
             if (success)
             {
                 _modelIO.ImportModel(_modelPath);
@@ -47,33 +46,15 @@ namespace TMMViewer.ViewModels
         [RelayCommand]
         public void ExportModel()
         {
-            var _modelPath = Path.GetFileNameWithoutExtension(_modelIO.OpenedModelPath);
-            var success = _dialogService.GetSaveFilePath(ref _modelPath, ".gltf|.3ds|.dae|.fbx|.obj", "gltf (.gltf)|*.gltf|3D Studio (.3ds)|*.3ds|Collider files (.dae)|*.dae|FBX files (.fbx)|*.fbx|OBJ files (.obj)|*.obj");
+            var _modelPath = Path.GetFileNameWithoutExtension(_modelIO.OpenedModelPath) ?? string.Empty;
+            var extensions = SupportedFiles.Export.Select(x => x.Extension).Aggregate((a,b) => $"{a}|{b}");
+            var filters = SupportedFiles.Export.Select(x => x.Filter).Aggregate((a, b) => $"{a}|{b}");
+
+            var success = _dialogService.GetSaveFilePath(ref _modelPath, extensions, filters);
             if (success)
             {
-                _modelIO.ExportModel(_modelPath, _modelExportMapping[Path.GetExtension(_modelPath)]);
+                _modelIO.ExportModel(_modelPath);
             }
         }
-
-        [RelayCommand]
-        public void ExportModelDebug()
-        {
-            var _modelPath = Path.GetFileNameWithoutExtension(_modelIO.OpenedModelPath);
-            var success = _dialogService.GetSaveFilePath(ref _modelPath, ".tmm.data", "tmm.data files (.tmm.data)|*.tmm.data");
-            if (success)
-            {
-                _modelIO.ExportModelDebug(_modelPath);
-            }
-        }
-
-        private Dictionary<string, string> _modelExportMapping = new()
-        {
-            { ".obj", "objnomtl" },
-            { ".fbx", "fbx" },
-            { ".3ds", "3ds" },
-            { ".dae", "collada" },
-            { ".gltf", "glTF" },
-            { ".glb", "glTF Binary" },
-        };
     }
 }

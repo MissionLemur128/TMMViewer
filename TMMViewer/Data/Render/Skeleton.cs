@@ -23,11 +23,11 @@ namespace TMMViewer.Data.Render
         public List<Bone> Children { get; } = new List<Bone>();
 
         public TMVector4 unknown { get; set; } = new TMVector4(0, 0, 0, 1);
-        public Matrix4x4 RestTransform { get; set; } = Matrix4x4.Identity;
+        public Matrix4x4 LocalTransform { get; set; } = Matrix4x4.Identity;
 
         // unsure on this matrix, assumming based on https://community.khronos.org/t/applying-simplifying-the-skinning-in-a-dae/109720
-        public Matrix4x4 PoseShape { get; set; } = Matrix4x4.Identity;
-        public Matrix4x4 InversePoseShape { get; set; } = Matrix4x4.Identity;
+        public Matrix4x4 GlobalTransform { get; set; } = Matrix4x4.Identity;
+        public Matrix4x4 InverseGlobalTransform { get; set; } = Matrix4x4.Identity;
 
         public static void InitGlobal(GraphicsDevice d, ContentManager c)
         {
@@ -158,7 +158,7 @@ namespace TMMViewer.Data.Render
 
         private void RenderBoneRecurse(Bone bone, Matrix4x4 world)
         {
-            world = bone.RestTransform * world;
+            world = bone.LocalTransform * world;
             bone.Render(this, world);
             foreach (var child in bone.Children)
             {

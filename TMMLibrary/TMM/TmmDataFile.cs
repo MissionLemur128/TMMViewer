@@ -1,6 +1,4 @@
-﻿using Assimp;
-using System.Numerics;
-using System.Runtime.InteropServices;
+﻿using System.Numerics;
 
 namespace TMMLibrary.TMM;
 
@@ -9,9 +7,7 @@ public struct TmmVertex : IEncode
     public Vector3 Origin;
     public Vector2 Uv;
     //public Vector3 Normal;
-    public byte[] Unknown0;
-    //public ushort Unknown1;
-    //public ushort Unknown2;
+    public byte[] Unknown0; // Unknown, but probably normal related.
 
     public static TmmVertex Decode(BinaryReader br)
     {
@@ -29,14 +25,7 @@ public struct TmmVertex : IEncode
                 Y = (float)br.ReadHalf(),
             },
             Unknown0 = br.ReadBytes(6),
-            //Tangent = new Vector3
-            //{
-            //    X = (float)br.ReadHalf(),
-            //    Y = (float)br.ReadHalf(),
-            //    Z = (float)br.ReadHalf(),
-            //}
         };
-        //br.ReadBytes(3);
         return r;
     }
 
@@ -48,8 +37,6 @@ public struct TmmVertex : IEncode
         w.Write((Half)Uv.X);
         w.Write((Half)Uv.Y);
         w.Write(Unknown0);
-        //w.Write((Half)Normal.Y);
-        //w.Write((Half)Normal.Z);
     }
 
     public void WriteObj(TextWriter w)

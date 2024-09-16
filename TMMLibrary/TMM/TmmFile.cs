@@ -238,9 +238,9 @@ public class Bone : IEncode
     public string Name = "";
     public int BoneParent;
     public float[] Unknown = []; // size = 4
-    public Matrix4x4 Transform = Matrix4x4.Identity;
-    public Matrix4x4 Unknown1 = Matrix4x4.Identity;
-    public Matrix4x4 Unknown2 = Matrix4x4.Identity;
+    public Matrix4x4 LocalTransform = Matrix4x4.Identity;
+    public Matrix4x4 GlobalTransform = Matrix4x4.Identity;
+    public Matrix4x4 InverseGlobalTransform = Matrix4x4.Identity;
 
     public static Bone Decode(BinaryReader br)
     {
@@ -249,9 +249,9 @@ public class Bone : IEncode
             Name = br.ReadTmString(),
             BoneParent = br.ReadInt32(),
             Unknown = br.ReadFloat32Array(4),
-            Transform = br.ReadMatrix4x4(),
-            Unknown1 = br.ReadMatrix4x4(),
-            Unknown2 = br.ReadMatrix4x4(),
+            LocalTransform = br.ReadMatrix4x4(),
+            GlobalTransform = br.ReadMatrix4x4(),
+            InverseGlobalTransform = br.ReadMatrix4x4(),
         };
     }
 
@@ -260,8 +260,8 @@ public class Bone : IEncode
         bw.WriteTmString(Name);
         bw.Write(BoneParent);
         bw.Write(Unknown);
-        bw.Write(Transform);
-        bw.Write(Unknown1);
-        bw.Write(Unknown2);
+        bw.Write(LocalTransform);
+        bw.Write(GlobalTransform);
+        bw.Write(InverseGlobalTransform);
     }
 }

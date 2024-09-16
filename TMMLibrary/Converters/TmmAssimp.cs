@@ -1,6 +1,7 @@
 ﻿using TMMLibrary.TMM;
 using Assimp;
 using AssimpBone = Assimp.Bone;
+using System.IO;
 
 namespace TMMLibrary.Converters
 {
@@ -8,6 +9,15 @@ namespace TMMLibrary.Converters
     {
         public static bool WriteToFile(TmmFile file, TmmDataFile model, string outputPath, string format)
         {
+            var extension = Path.GetExtension(outputPath);
+            if (extension == null)
+                return false;
+
+            var filetype = SupportedFiles.Export.FirstOrDefault(r => string.Equals(r.Extension, extension));
+            if (filetype == null)
+                return false;
+            format = filetype.AssimpName ?? format;
+
             var scene = new Scene();
             scene.Materials.Add(new Material());
             
@@ -33,7 +43,7 @@ namespace TMMLibrary.Converters
                     var bone = modelInfo.Bones[j];
                     var node = new Node(bone.Name);
 
-                    var transform =  bone.Transform;
+                    var transform =  bone.LocalTransform;
                     node.Transform = ConvertMatrix4x4(transform);
                     node.Metadata.Add("UserProperties", new Metadata.Entry(MetaDataType.String, string.Empty));
                     node.Metadata.Add("IsNull", new Metadata.Entry(MetaDataType.Bool, true));
@@ -66,7 +76,7 @@ namespace TMMLibrary.Converters
                 {
                     var bone = modelInfo.Bones[j];
                     var assimpBone = new AssimpBone();
-                    assimpBone.OffsetMatrix = ConvertMatrix4x4(bone.Transform);
+                    assimpBone.OffsetMatrix = ConvertMatrix4x4(bone.LocalTransform);
                     assimpBone.Name = bone.Name;
 
                     for (int k = 0; k < model.BoneWeights.Length; ++k)

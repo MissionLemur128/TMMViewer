@@ -6,7 +6,6 @@ using TMMViewer.Data.Render;
 using TMMViewer.ViewModels.MonoGameControls;
 using GLVector3 = Microsoft.Xna.Framework.Vector3;
 using System.IO;
-using SharpDX.MediaFoundation;
 
 namespace TMMViewer.Data.Services
 {
@@ -108,9 +107,9 @@ namespace TMMViewer.Data.Services
                         parent = bone.BoneParent,
                         index = id,
                         unknown = new System.Numerics.Vector4(bone.Unknown[0], bone.Unknown[1], bone.Unknown[2], bone.Unknown[3]),
-                        RestTransform = bone.Transform,
-                        PoseShape = bone.Unknown1,
-                        InversePoseShape = bone.Unknown2
+                        LocalTransform = bone.LocalTransform,
+                        GlobalTransform = bone.GlobalTransform,
+                        InverseGlobalTransform = bone.InverseGlobalTransform
                     };
 
                     skeleton.AddBones(bone3D);
@@ -122,24 +121,11 @@ namespace TMMViewer.Data.Services
             _scene.Camera.Target = new Vector3(0, (yMax + yMin) / 2, 0);
         }
 
-        public void ExportModel(string path, string format)
+        public void ExportModel(string path)
         {
             foreach (var mesh in tmmDataFiles)
             {
-                var success = TmmAssimp.WriteToFile(tmmFile, mesh, path, format);
-            }
-        }
-
-        public void ExportModelDebug(string path)
-        {
-            foreach (var mesh in tmmDataFiles)
-            {
-                using MemoryStream stream = new();
-                using BinaryWriter writer = new(stream);
-                mesh.Encode(writer);
-
-                var data = stream.ToArray();
-                File.WriteAllBytes(path, data);
+                var success = TmmAssimp.WriteToFile(tmmFile, mesh, path, null);
             }
         }
     }
