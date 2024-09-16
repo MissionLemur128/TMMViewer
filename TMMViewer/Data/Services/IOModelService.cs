@@ -103,46 +103,17 @@ namespace TMMViewer.Data.Services
                 var id = 0;
                 foreach (var bone in model.Bones)
                 {
-                    if (skeleton.Bones.ContainsKey((ushort)id))
-                        continue;
-
-                    var bone3D = new Render.Bone();
-
-
-
-                    //var v = new Vector4[4];
-                    //var offset = 64;
-                    //for (int i = 0; i < 4; i++)
-                    //{
-                    //    v[i] = new Vector4(
-                    //        BitConverter.ToSingle(bone.Unknown2, offset + i * 16),
-                    //        BitConverter.ToSingle(bone.Unknown2, offset + i * 16 + 4),
-                    //        BitConverter.ToSingle(bone.Unknown2, offset + i * 16 + 8),
-                    //        BitConverter.ToSingle(bone.Unknown2, offset + i * 16 + 12));
-                    //}
-
-                    var v = new Vector3[3];
-                    var offset = 0;
-                    for (int i = 0; i < 3; i++)
+                    var bone3D = new Render.Bone()
                     {
-                        v[i] = new Vector3(
-                            BitConverter.ToSingle(bone.Unknown2, offset + i * 12),
-                            BitConverter.ToSingle(bone.Unknown2, offset + i * 12 + 4),
-                            BitConverter.ToSingle(bone.Unknown2, offset + i * 12 + 8));
-                    }
+                        parent = bone.BoneParent,
+                        index = id,
+                        unknown = new System.Numerics.Vector4(bone.Unknown[0], bone.Unknown[1], bone.Unknown[2], bone.Unknown[3]),
+                        RestTransform = bone.Transform,
+                        PoseShape = bone.Unknown1,
+                        InversePoseShape = bone.Unknown2
+                    };
 
-
-                    //bone3D.Transform = new Matrix(v[0], v[1], v[2], v[3]);
-                    //bone3D.Transform = Matrix.CreateWorld(v[0], v[1], v[2]);
-                    bone3D.data = bone.Unknown2;
-                    bone3D.parent = bone.BoneParent;
-                    bone3D.index = id;
-
-                        //Matrix.CreateScale(bone.Scale) *
-                        //Matrix.CreateFromQuaternion(bone.Rotation) *
-                        //Matrix.CreateTranslation(bone.Position);
-
-                    skeleton.Bones.Add((ushort)id, bone3D);
+                    skeleton.AddBones(bone3D);
                     id++;
                 }
                 _scene.Skeleton = skeleton;

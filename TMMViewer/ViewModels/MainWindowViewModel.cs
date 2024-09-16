@@ -48,7 +48,7 @@ namespace TMMViewer.ViewModels
         public void ExportModel()
         {
             var _modelPath = Path.GetFileNameWithoutExtension(_modelIO.OpenedModelPath);
-            var success = _dialogService.GetSaveFilePath(ref _modelPath, ".obj", "OBJ files (.obj)|*.obj");
+            var success = _dialogService.GetSaveFilePath(ref _modelPath, ".gltf|.3ds|.dae|.fbx|.obj", "gltf (.gltf)|*.gltf|3D Studio (.3ds)|*.3ds|Collider files (.dae)|*.dae|FBX files (.fbx)|*.fbx|OBJ files (.obj)|*.obj");
             if (success)
             {
                 _modelIO.ExportModel(_modelPath, _modelExportMapping[Path.GetExtension(_modelPath)]);
@@ -69,8 +69,9 @@ namespace TMMViewer.ViewModels
         private Dictionary<string, string> _modelExportMapping = new()
         {
             { ".obj", "objnomtl" },
-            { ".fbx", "FBX" },
-            { ".dae", "Collada" },
+            { ".fbx", "fbx" },
+            { ".3ds", "3ds" },
+            { ".dae", "collada" },
             { ".gltf", "glTF" },
             { ".glb", "glTF Binary" },
         };

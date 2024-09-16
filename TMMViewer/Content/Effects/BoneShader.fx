@@ -23,7 +23,6 @@ struct DefaultShaderOutput
 DefaultShaderOutput VS_Default(in DefaultShaderInput input)
 {
     DefaultShaderOutput output = (DefaultShaderOutput) 0;
-    
     output.Position = LocalToProjection(input.Position);
     output.Normal = max(0, normalize(mul(mul(float4(input.Normal.xyz, 0), _world), _view)).z);
     return output;

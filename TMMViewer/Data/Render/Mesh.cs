@@ -7,6 +7,8 @@ namespace TMMViewer.Data.Render
     {
         public Effect Material { get; set; }
 
+        //public Model Model { get; set; }
+
         private VertexBuffer _vertexBuffer;
         private IndexBuffer _indices;
 
@@ -15,6 +17,19 @@ namespace TMMViewer.Data.Render
             Material = material;
             _vertexBuffer = vertexBuffer;
             _indices = indices;
+
+
+            //Model.Meshes.Append(new ModelMesh
+            //{
+            //    MeshParts = new ModelMeshPart[]
+            //    {
+            //        new ModelMeshPart
+            //        {
+            //            IndexBuffer = _indices,
+            //            VertexBuffer = _vertexBuffer
+            //        }
+            //    }
+            //});
         }
 
         public void Render(RenderMode mode)

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Numerics;
+using System.Text;
 
 namespace TMMLibrary.TMM;
 
@@ -66,11 +67,35 @@ public static class IoExtensions
         return array;
     }
 
+    public static Matrix4x4 ReadMatrix4x4(this BinaryReader br)
+    {
+        var matrix = Matrix4x4.Identity;
+        for (int i = 0; i < 4; ++i)
+        {
+            for (int j = 0; j < 4; ++j)
+            {
+                matrix[i, j] = br.ReadSingle();
+            }
+        }
+        return matrix;
+    }
+
     public static void Write(this BinaryWriter bw, float[] array)
     {
         foreach (var v in array)
         {
             bw.Write(v);
+        }
+    }
+
+    public static void Write(this BinaryWriter bw, Matrix4x4 matrix)
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            for (int j = 0; j < 4; ++j)
+            {
+                bw.Write(matrix[i, j]);
+            }
         }
     }
 

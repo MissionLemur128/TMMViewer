@@ -14,7 +14,7 @@ struct VertexShaderInput
     float4 Normal : NORMAL0;
     float2 UV : TEXCOORD0;
     float4 BoneWeights : BLENDWEIGHT0;
-    int4 BoneIndices : BLENDINDICES0;
+    //int4 BoneIndices : BLENDINDICES0;
     float4 Mask : Color0;
 };
 

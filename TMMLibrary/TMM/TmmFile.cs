@@ -1,4 +1,6 @@
-﻿namespace TMMLibrary.TMM;
+﻿using System.Numerics;
+
+namespace TMMLibrary.TMM;
 
 public class TmmFile
 {
@@ -235,8 +237,10 @@ public class Bone : IEncode
 {
     public string Name = "";
     public int BoneParent;
-    //public ushort BoneId;
-    public byte[] Unknown2 = []; // size = 52
+    public float[] Unknown = []; // size = 4
+    public Matrix4x4 Transform = Matrix4x4.Identity;
+    public Matrix4x4 Unknown1 = Matrix4x4.Identity;
+    public Matrix4x4 Unknown2 = Matrix4x4.Identity;
 
     public static Bone Decode(BinaryReader br)
     {
@@ -244,16 +248,20 @@ public class Bone : IEncode
         {
             Name = br.ReadTmString(),
             BoneParent = br.ReadInt32(),
-            //BoneId = br.ReadUInt16(),
-            Unknown2 = br.ReadBytes(0xD0), // = 52
+            Unknown = br.ReadFloat32Array(4),
+            Transform = br.ReadMatrix4x4(),
+            Unknown1 = br.ReadMatrix4x4(),
+            Unknown2 = br.ReadMatrix4x4(),
         };
     }
-    
+
     public void Encode(BinaryWriter bw)
     {
         bw.WriteTmString(Name);
         bw.Write(BoneParent);
-        //bw.Write(BoneId);
+        bw.Write(Unknown);
+        bw.Write(Transform);
+        bw.Write(Unknown1);
         bw.Write(Unknown2);
     }
 }

@@ -11,6 +11,9 @@
 
 float3 _diffuseColor;
 
+//float4x4 _boneTransform[255];
+//float4x4 _bonePoseInverse[255];
+
 struct DefaultShaderOutput
 {
     float4 Position : SV_POSITION;
@@ -27,7 +30,13 @@ struct DefaultShaderOutput
 DefaultShaderOutput VS_Default(in VertexShaderInput input)
 {
     DefaultShaderOutput output = (DefaultShaderOutput) 0;
-
+        
+    //float4 worldPosition = float4(0, 0, 0, 0);
+    //for (int i = 0; i < 4; i++)
+    // {
+    //    worldPosition += mul(mul(input.Position, _boneTransform[input.BoneIndices[i]]), _boneTransform[input.BoneIndices[i]]) * input.BoneWeights[i];
+    //}
+    
     float4 worldPosition = mul(input.Position, _world);
     float4 viewPosition = mul(worldPosition, _view);
     output.Position = mul(viewPosition, _projection);
