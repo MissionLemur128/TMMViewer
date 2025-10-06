@@ -7,8 +7,8 @@ namespace TMMViewer.Data.Render.Cameras
     public class OrbitCamera : Camera
     {
         public float Distance { get; set; } = 20;
-        public float Yaw { get; set; } = -20;
-        public float Pitch { get; set; } = 1;
+        public float Yaw { get; set; } = 315;
+        public float Pitch { get; set; } = 30;
 
         private Vector2 _lastCursorPosition;
 
@@ -19,27 +19,34 @@ namespace TMMViewer.Data.Render.Cameras
 
         public override void Update(MouseStateArgs mouseState, int delta)
         {
-            var rotateSensivity = 0.3f;
-            var zoomSensivity = -1f / 120;
-
             if (mouseState.LeftButton == ButtonState.Pressed)
             {
                 var moveDistance = new Vector2(mouseState.Position.X, mouseState.Position.Y) - _lastCursorPosition;
+                var rotateSensivity = 0.3f;
                 Pitch += moveDistance.Y * rotateSensivity;
                 Yaw += moveDistance.X * rotateSensivity;
-            }
 
+                var pitchDegreeLimit = 89;
+                Pitch = MathHelper.Clamp(Pitch, -pitchDegreeLimit, pitchDegreeLimit);
+            }
             _lastCursorPosition = mouseState.Position;
-            Distance += delta * zoomSensivity;
+
+            var zoomSensivity = -1f / 1000;
+            Distance *= 1 + delta * zoomSensivity;
+            Distance = MathHelper.Clamp(Distance, 0.1f, 1000);
             UpdatePosition();
         }
 
         private void UpdatePosition()
         {
-            Position = Distance * new Vector3(
-                            MathF.Cos(MathHelper.ToRadians(Yaw)) * MathF.Cos(MathHelper.ToRadians(Pitch)),
-                            MathF.Sin(MathHelper.ToRadians(Pitch)),
-                            MathF.Sin(MathHelper.ToRadians(Yaw)) * MathF.Cos(MathHelper.ToRadians(Pitch)));
+            var pitchRadian = MathHelper.ToRadians(Pitch);
+            var yawRadian = MathHelper.ToRadians(Yaw);
+            var cosPitch = MathF.Cos(pitchRadian);
+            var dx = -MathF.Cos(yawRadian) * cosPitch;
+            var dy = MathF.Sin(pitchRadian);
+            var dz = -MathF.Sin(yawRadian) * cosPitch;
+
+            Position = Target + Distance * new Vector3(dx, dy, dz);
         }
     }
 }

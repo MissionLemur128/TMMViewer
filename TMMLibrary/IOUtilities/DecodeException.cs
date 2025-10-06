@@ -1,4 +1,4 @@
-﻿namespace TMMLibrary.TMM;
+﻿namespace TMMLibrary.Utils;
 using System.Runtime.InteropServices;
 
 public class DecodeException : IOException

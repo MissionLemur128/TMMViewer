@@ -66,6 +66,8 @@ public sealed class MonoGameContentControl : ContentControl, IDisposable, IMonoG
 
     public bool IsDisposed { get; private set; }
 
+    public bool LockInput { get; set; } = false;
+
     public void Dispose()
     {
         Dispose(true);

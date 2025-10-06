@@ -2,11 +2,12 @@
 using Microsoft.Xna.Framework.Graphics;
 using TMMViewer.ViewModels.MonoGameControls;
 
+
 namespace TMMViewer.Data.Render.Cameras
 {
-    public class Camera
+    public abstract class Camera
     {
-        public Vector3 Position { get; set; } = new Vector3(12, 10, 12);
+        public Vector3 Position { get; set; } = new Vector3(-12, 10, -12);
         public Vector3 Target { get; set; } = new Vector3(0, 5, 0);
         public Vector3 Up { get; set; } = new Vector3(0, 1, 0);
         public float FieldOfView { get; set; } = MathHelper.PiOver4;
@@ -14,10 +15,12 @@ namespace TMMViewer.Data.Render.Cameras
         public float NearPlaneDistance { get; set; } = 0.1f;
         public float FarPlaneDistance { get; set; } = 1000;
 
-        public Matrix View => Matrix.CreateLookAt(Position, Target, Up);
-        public Matrix Projection => Matrix.CreatePerspectiveFieldOfView(FieldOfView, AspectRatio, NearPlaneDistance, FarPlaneDistance);
+        public Matrix View => _invertXAxis * Matrix.CreateLookAt(Position, Target, Up);
+        public Matrix Projection =>  Matrix.CreatePerspectiveFieldOfView(FieldOfView, AspectRatio, NearPlaneDistance, FarPlaneDistance);
 
         public Color BackgroundColor { get; set; } = Color.Black;
+
+        private readonly Matrix _invertXAxis = Matrix.CreateScale(new Vector3(-1, 1, 1));
 
         public virtual void Update(MouseStateArgs mouseState, int delta)
         {

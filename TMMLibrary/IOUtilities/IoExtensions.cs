@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using System.Text;
 
-namespace TMMLibrary.TMM;
+namespace TMMLibrary.Utils;
 
 
 public interface IEncode
@@ -14,7 +14,7 @@ public static class IoExtensions
     public static ushort[] ReadUint16Array(this BinaryReader br,  int v)
     {
         var array = new ushort[v];
-        for (var i = 0; i < v; i++)
+        for (var i = 0; i < v && br.BaseStream.Length - br.BaseStream.Position >= 2; i++)
         {
             array[i] = br.ReadUInt16();
         }
@@ -32,7 +32,7 @@ public static class IoExtensions
     public static uint[] ReadUint32Array(this BinaryReader br, int v)
     {
         var array = new uint[v];
-        for (var i = 0; i < v; i++)
+        for (var i = 0; i < v && br.BaseStream.Length - br.BaseStream.Position >= 4; i++)
         {
             array[i] = br.ReadUInt32();
         }
@@ -42,7 +42,7 @@ public static class IoExtensions
     public static int[] ReadInt32Array(this BinaryReader br, int count)
     {
         var array = new int[count];
-        for (var i = 0; i < count; i++)
+        for (var i = 0; i < count && br.BaseStream.Length - br.BaseStream.Position >= 4; i++)
         {
             array[i] = br.ReadInt32();
         }
@@ -79,6 +79,32 @@ public static class IoExtensions
         }
         return matrix;
     }
+
+    public static Matrix4x4 ReadMatrix4x3(this BinaryReader br)
+    {
+        var matrix = Matrix4x4.Identity;
+        for (int i = 0; i < 3; ++i)
+        {
+            for (int j = 0; j < 4; ++j)
+            {
+                matrix[j, i] = br.ReadSingle();
+            }
+        }
+        return matrix;
+    }
+
+
+    public static void WriteMatrix4x3(this BinaryWriter bw, Matrix4x4 matrix)
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            for (int j = 0; j < 4; ++j)
+            {
+                bw.Write(matrix[j, i]);
+            }
+        }
+    }
+
 
     public static void Write(this BinaryWriter bw, float[] array)
     {
@@ -139,6 +165,24 @@ public static class IoExtensions
         bw.Write((uint)bytes.Length / 2);
         bw.Write(bytes);
     }
+
+    public static void WriteZerosBytes(this BinaryWriter bw, int count)
+    {
+        for (int i = 0; i < count; ++i)
+        {
+            bw.Write((byte)0);
+        }
+    }
+
+    public static void ReadZeroBytesOrThrow(this BinaryReader br, Type decoder, int length)
+    {
+        for (var i = 0; i < length; i++)
+        {
+            var value = br.ReadByte();
+            DecodeException.ExpectEqual(decoder, br.BaseStream.Position - sizeof(byte), value, 0);
+        }
+    }
+       
 
     public static T[] DecodeArray<T>(this BinaryReader br, int length, Func<BinaryReader, T> fn)
     {

@@ -21,6 +21,7 @@ struct DefaultShaderOutput
     float2 UV : TEXCOORD0;
     float3 NormalView : TEXCOORD1;
     float Mask : Color0;
+    float3 ObjectId : Color1;
 };
 
 
@@ -43,6 +44,7 @@ DefaultShaderOutput VS_Default(in VertexShaderInput input)
     output.Normal = input.Normal;
     output.UV = input.UV;
     output.NormalView = mul(input.Normal, _view).xyz;
+    output.ObjectId = input.ObjectId;
     return output;
 }
 
@@ -71,6 +73,31 @@ VertexColorShaderOutput VS_Normals(in VertexShaderInput input)
     return output;
 }
 
+VertexColorShaderOutput VS_Tangent(in VertexShaderInput input)
+{
+    VertexColorShaderOutput output = (VertexColorShaderOutput) 0;
+    output.Position = LocalToProjection(input.Position);
+    output.Color = input.Tangent * 0.5 + 0.5;
+    return output;
+}
+
+VertexColorShaderOutput VS_Bitangent(in VertexShaderInput input)
+{
+    VertexColorShaderOutput output = (VertexColorShaderOutput) 0;
+    output.Position = LocalToProjection(input.Position);
+    float3 bitangent = cross(input.Normal.xyz, input.Tangent.xyz) * input.Tangent.w;
+    output.Color = float4(bitangent * 0.5 + 0.5, 1.0);
+    return output;
+}
+
+VertexColorShaderOutput VS_ObjectIds(in VertexShaderInput input)
+{
+    VertexColorShaderOutput output = (VertexColorShaderOutput) 0;
+    output.Position = LocalToProjection(input.Position);
+    output.Color = input.Normal * 0.5 + 0.5;
+    return output;
+}
+
 ///
 /// Pixel Shaders
 ///
@@ -82,11 +109,21 @@ float4 PS_Default(DefaultShaderOutput input) : COLOR
     float3 lightColor = _ambientLightColor + _sunLightColor * lightIntensity * 0.5;
     
     // magic formula to highlight edges based on the x component of the view transformed normal
-    float edgeHighlight = 1 - 0.5 * saturate(pow(abs(input.NormalView.x) * 0.15, 2));
-    return float4(lightColor * _diffuseColor * edgeHighlight, 1.0);
+    float edgeHighlight = 1 - 0.5 * saturate(pow(abs(input.NormalView.x) , 2));
+    return float4(min(1.0, 1.1 + 0.9 * input.Normal.y) * lightColor * _diffuseColor * edgeHighlight, 1.0);
 }
 
-
+float4 PS_ObjectId(DefaultShaderOutput input) : COLOR
+{
+    float3 normal = normalize(input.Normal.xyz);
+    float3 lightDirection = normalize(_sunLightDirection);
+    float lightIntensity = max(dot(normal, lightDirection), 0.0);
+    float3 lightColor = _ambientLightColor + _sunLightColor * lightIntensity * 0.5;
+    
+    // magic formula to highlight edges based on the x component of the view transformed normal
+    float edgeHighlight = 1 - 0.5 * saturate(pow(abs(input.NormalView.x), 2));
+    return float4(min(1.0, 1.1 + 0.9 * input.Normal.y) * lightColor * input.ObjectId * edgeHighlight, 1.0);
+}
 
 technique Solid
 {
@@ -121,5 +158,32 @@ technique Normals
     {
         VertexShader = compile VS_SHADERMODEL VS_Normals();
         PixelShader = compile PS_SHADERMODEL PS_ColorOnly();
+    }
+};
+
+technique Tangents
+{
+    pass P0
+    {
+        VertexShader = compile VS_SHADERMODEL VS_Tangent();
+        PixelShader = compile PS_SHADERMODEL PS_ColorOnly();
+    }
+};
+
+technique Bitangents
+{
+    pass P0
+    {
+        VertexShader = compile VS_SHADERMODEL VS_Bitangent();
+        PixelShader = compile PS_SHADERMODEL PS_ColorOnly();
+    }
+};
+
+technique ObjectIds
+{
+    pass P0
+    {
+        VertexShader = compile VS_SHADERMODEL VS_Default();
+        PixelShader = compile PS_SHADERMODEL PS_ObjectId();
     }
 };

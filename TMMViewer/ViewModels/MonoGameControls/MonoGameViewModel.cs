@@ -11,6 +11,8 @@ public interface IMonoGameViewModel : IDisposable
     GraphicsDevice GraphicsDevice { get; }
     ContentManager Content { get; }
 
+    public bool LockInput { get; set; }
+
     void Initialize();
     void LoadContent();
     void UnloadContent();
@@ -47,6 +49,8 @@ public class MonoGameViewModel : ViewModel, IMonoGameViewModel
     protected MonoGameServiceProvider Services { get; private set; } = default!;
     public ContentManager Content { get; protected set; } = default!;
     protected List<IGameComponent> Components { get; } = new();
+
+    public bool LockInput { get; set; }
 
     public virtual void Initialize()
     {

@@ -8,16 +8,22 @@
         mc:Ignorable="d"
         Title="TMM Viewer" Height="450" Width="800">
 
-    <DockPanel>
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Header="Import" Command="{Binding ImportModelCommand}"/>
-            <MenuItem Header="Export" Command="{Binding ExportModelCommand}"/>
-            <!--
-            <MenuItem Header="Export Debug" Command="{Binding ExportModelDebugCommand}"/>
-            -->
-            <ComboBox ItemsSource="{Binding RenderModes}" SelectedItem="{Binding SelectedRenderMode}" Width="200"/>
-        </Menu>
-        
-        <views:MonoGameContentControl x:Name="Viewer3D"/>
-    </DockPanel>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <views:SideBar Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch"/>
+
+        <Grid Grid.Column="2">
+            <views:MonoGameContentControl x:Name="Viewer3D"  DataContext="{Binding ModelViewer}" />
+
+            <ComboBox ItemsSource="{Binding RenderModes}" SelectedItem="{Binding SelectedRenderMode}" Width="200" Height="24" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15"/>
+
+        </Grid>
+    </Grid>
 </Window>

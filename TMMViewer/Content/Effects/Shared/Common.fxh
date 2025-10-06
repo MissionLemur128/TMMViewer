@@ -12,10 +12,12 @@ struct VertexShaderInput
 {
     float4 Position : POSITION0;
     float4 Normal : NORMAL0;
+    float4 Tangent : TANGENT0;
     float2 UV : TEXCOORD0;
     float4 BoneWeights : BLENDWEIGHT0;
     //int4 BoneIndices : BLENDINDICES0;
     float4 Mask : Color0;
+    float4 ObjectId : Color1;
 };
 
 struct VertexColorShaderOutput

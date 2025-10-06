@@ -1,6 +1,7 @@
 ﻿using System.Xml;
+using TMMLibrary.Utils;
 
-namespace TMMLibrary.TMM;
+namespace TMMLibrary.TMA;
 
 /// <summary>
 /// Reads data from an XML file where the root node is <c>animfile</c>. This is not a full representation

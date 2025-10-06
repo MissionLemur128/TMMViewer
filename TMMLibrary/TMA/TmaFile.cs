@@ -1,4 +1,6 @@
-﻿namespace TMMLibrary.TMM;
+﻿using TMMLibrary.Utils;
+
+namespace TMMLibrary.TMA;
 
 public class TmaFile
 {
@@ -24,7 +26,7 @@ public class TmaFile
         {
             throw new DecodeException(typeof(TmaFile), "expected last 8 bytes to be 0");
         }
-        DecodeException.ExpectEof(typeof(TmaFile), br.BaseStream);
+        //DecodeException.ExpectEof(typeof(TmaFile), br.BaseStream);
         return new TmaFile
         {
             FileHeader = header,

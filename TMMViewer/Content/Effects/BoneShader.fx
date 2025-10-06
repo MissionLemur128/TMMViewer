@@ -8,6 +8,8 @@
 
 #include "./Shared/Common.fxh"
 
+uniform float3 _color;
+
 struct DefaultShaderInput
 {
     float4 Position : SV_POSITION;
@@ -31,7 +33,7 @@ DefaultShaderOutput VS_Default(in DefaultShaderInput input)
 float4 PS_Default(DefaultShaderOutput input) : COLOR
 {
     float v = input.Normal * 0.75 + 0.25;
-    return float4(v * 0.5, v, v * 0.7, 1.0);
+    return float4(v * _color, 1.0);
 }
 
 technique Default
